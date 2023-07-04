@@ -7,6 +7,7 @@ const userSchema=new mongoose.Schema({
 	email:{type: String,required:true,default:'null'},
 	website:{type:String},
 	phone:{type: Number,required:true,default:'null'},
+	like:{type: Boolean},
 }
 
 );

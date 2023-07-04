@@ -3,9 +3,10 @@ import { useEffect } from 'react'
 
 import { useState } from 'react'
 import { useNavigate, Navigate, Link, NavLink } from 'react-router-dom'
-import { deleteUser, getUsers, updateUser } from '../service/userService'
+import { deleteUser, getUsers, likeUser, updateUser } from '../service/userService'
 import { toast } from 'react-hot-toast'
-import { PhoneOutlined, MailOutlined, GlobalOutlined, HeartOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PhoneOutlined, MailOutlined, GlobalOutlined, HeartOutlined, EditOutlined, DeleteOutlined, HeartFilled, DeleteFilled, CloseOutlined } from '@ant-design/icons'
+import { BeatLoader } from 'react-spinners'
 
 export default function UserList() {
 
@@ -14,6 +15,7 @@ export default function UserList() {
     const [key, setKey] = useState('all');
     const[edituser,setEdituser]=useState(false);
     const[newUser,setNewUser]=useState({});
+    const[like,setLike]=useState(false);
 
     const callApi=async()=>{
       await getUsers()
@@ -46,6 +48,17 @@ export default function UserList() {
 
  
 
+    function handleLike(id){
+      setLike(!like)
+      likeUser(id,{like:!like})
+      .then(res=>{
+        callApi()
+    })
+    .catch(error=>{
+        console.log(error)
+    })
+        
+    }
     function handleUpdate(use){
         setEdituser(true)
         setNewUser(use);
@@ -73,76 +86,70 @@ export default function UserList() {
 
     return (
         <div className='relative'>
-         {<div className=' absolute'> <h1 className='text-2xl font-semibold mx-auto w-fit' >
-                UserList
-            </h1>
+        
+         {<div className={` absolute ${edituser?'opacity-30 bg-slate-100':''}`}> 
 
             <div className='flex gap-2 flex-wrap'>
-        {userData?.map((item)=>(
+        {userData?userData.map((item)=>(
             <div className=' m-5 border border-slate-200 w-[400px] '>
-            <img src={`https://avatars.dicebear.com/v2/avataaars/{{${item.name}}}.svg?options[mood][]=happy`} alt="" className='w-full h-[150px] bg-gray-100'/>
-                <p className='ml-5 mt-5 font-semibold text-black'>{item.name}</p>
+            <img src={`https://avatars.dicebear.com/v2/avataaars/{{${item.name}}}.svg?options[mood][]=happy`} alt="" className='w-full h-[170px] bg-[#f5f5f5]'/>
+                <p className='ml-5 mt-5 mb-2 font-semibold text-black'>{item.name}</p>
                 <p className='ml-5 flex items-center gap-2'><MailOutlined /> {item.email}</p>
                 <p className='ml-5 flex items-center gap-2'><PhoneOutlined /> {item.phone}</p>
                 <p className='ml-5 mb-5 flex items-center gap-2'><GlobalOutlined /> {item.website}</p>
                 
-                <div className='flex justify-between  mt-5 bg-gray-100 border-t-slate-200 border'>
-                <button className=' text-red-500  p-1  w-full' onClick={() =>handleDelete(item._id)}><HeartOutlined /></button>
-                <button className='   text-slate-500 hover:text-blue-500 w-full' onClick={()=>handleUpdate(item)}><EditOutlined /></button>
+                <div className='flex justify-between  mt-5 bg-[#f5f5f5] border-t-slate-200 border'>
+                <button className=' text-red-500 border-r-2 m-2  w-full' onClick={() =>handleLike(item._id)}>{item.like?<HeartFilled />:<HeartOutlined />}</button>
+                <button className='   text-slate-500 border-r-2 m-2 hover:text-blue-500 w-full' onClick={()=>handleUpdate(item)}><EditOutlined /></button>
                 
-                <button className=' text-slate-500 hover:text-blue-500 w-full' onClick={() =>handleDelete(item._id)}><DeleteOutlined /></button>
+                <button className=' text-slate-500 hover:text-blue-500 w-full m-2' onClick={() =>handleDelete(item._id)}><DeleteFilled /></button>
                 </div>
                
             </div>
-        ))}
+        )):
+<BeatLoader color="#36d7b7" className='' margin={10} />
+        }
        </div>
        </div>
        }
-       {edituser &&  <div className=' absolute left-10 top-10 bg-white p-5'>
-        <form onSubmit={updateNewUser} className='w-[600px] mx-auto'>
-         <div className="border-b border-gray-900/10 pb-12">
-          <h2 className="text-base font-semibold leading-7 text-gray-900">User Information</h2>
-
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+       {edituser &&  <div className=' absolute   p-5  w-full'>
+        <form onSubmit={updateNewUser} className='w-[600px] mx-auto bg-white mt-[100px] p-2 rounded-md'>
+         <div className="border-b border-gray-900/10 flex justify-between items-center">
+          <h2 className="text-base font-semibold leading-7 text-gray-900">Basic Model</h2>
+          <CloseOutlined onClick={()=>{setEdituser(false)}}/>
+          </div>
+          <div className="mt-10  ">
       
              
-              <div className="">
-              Name:<input
+              <div className="flex items-center justify-center mt-2 gap-1">
+              <u className='text-red-400 no-underline'>*</u>Name:<input
                   type="text"
                   name="name"
                   required
                   value={newUser.name}
                   onChange={handleChange}
-                  id="first-name"
                   autoComplete="given-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
+                  className=" w-[60%] rounded-md border-2 py-1.5 text-gray-900  placeholder:text-gray-400" />
               </div>
-      
 
-            
-
-            <div className="sm:col-span-4">
               
-            Email: <div className="mt-2">
-                <input
-                  id="email"
+             <div className="flex items-center justify-center mt-2 gap-1">
+            <u className='text-red-400 no-underline'>*</u>Email: <input
                   name="email"
                   required
                   value={newUser.email}
                   onChange={handleChange}
                   type="email"
                   autoComplete="email"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
+                  className=" w-[60%] rounded-md border-2 py-1.5 text-gray-900  placeholder:text-gray-400"/>
               </div>
-            </div>
+    
      
 
-            <div className="sm:col-span-2">
+  
           
-              Phone:<div className="mt-2">
-                <input
+             <div className="flex items-center justify-center mt-2 gap-1">
+             <u className='text-red-400 no-underline'>*</u>Phone:<input
                   type="tel"
                   name="phone"
                   required
@@ -150,38 +157,35 @@ export default function UserList() {
                   value={newUser.phone}
                   onChange={handleChange}
                   autoComplete="postal-code"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className=" w-[60%] rounded-md border-2 py-1.5 text-gray-900  placeholder:text-gray-400"
                 />
               </div>
-            </div>
 
-            <div className="sm:col-span-4">
              
-             website: <div className="mt-2">
-               <input
+              <div className="flex items-center justify-center mt-2 gap-1">
+              <u className='text-red-400 no-underline'>*</u>website:<input
                  name="website"
                  required
                  value={newUser.website}
                  onChange={handleChange}
                  type="text"
                  autoComplete="email"
-                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-               />
+                 className="w-[60%]  rounded-md border-2 py-1.5 text-gray-900  placeholder:text-gray-400"/>
              </div>
-           </div>
+         
 
           </div>
-        </div>
+        
 
-        <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button type="button" className="text-sm font-semibold leading-6 text-gray-900" onClick={()=>{setEdituser(false)}}>
+        <div className="mt-6 flex item-center justify-end gap-x-5 border-t p-2">
+        <button type="button" className="text-sm rounded-md font-semibold leading-6 text-slate-400 p-1 hover:border-blue-500 hover:text-blue-500 border-2" onClick={()=>{setEdituser(false)}}>
           Cancel
         </button>
         <button
           type="submit"
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-         Update
+         Ok
         </button>
       </div>
 

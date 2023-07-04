@@ -61,3 +61,19 @@ exports.updateUser=async(req,res)=>{
             })
         }
 }
+exports.likeUser=async(req,res)=>{
+    try {
+        console.log(req.body)
+        const ids=await userModel.findByIdAndUpdate(req.params.id,req.body,{new:true});
+        return  res.status(200).send({
+            success:true,
+            message:"like successfull"
+        })
+
+        } catch (error) {
+            return  res.status(400).send({
+                success:false,
+                message:"fail like"
+            })
+        }
+}

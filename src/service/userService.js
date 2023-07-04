@@ -15,6 +15,9 @@ const BaseUrl=`http://localhost:4000/user`;
     export function getUserId(id){
         return axios.get(BaseUrl+"/"+id);
     }
+    export function likeUser(id,data){
+        return axios.put(BaseUrl+"/"+id,data);
+    }
 
     export function deleteUser(id){
         return axios.delete(BaseUrl+"/"+id);
